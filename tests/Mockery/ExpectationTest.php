@@ -1363,11 +1363,28 @@ class ExpectationTest extends MockeryTestCase
         $this->mock->foo(1, 2, 3);
     }
 
+    /**
+     * @requires PHP 7.0.0
+     */
     public function testClassConstraintThrowsExceptionWhenConstraintUnmatched()
     {
         $this->mock->shouldReceive('foo')->with(Mockery::type('stdClass'));
         $this->expectException(\Mockery\Exception::class);
-        $this->mock->foo(new Exception);
+        $this->mock->foo(new Exception());
+        Mockery::close();
+    }
+
+    /**
+     * For PHP 5.6 we use `DateTime` instead of `Exception` because otherwise
+     * it creates a too large diff that results in a memory limit reach.
+     * This error only appears when running the whole test suite so this is not
+     * a code issue.
+     */
+    public function testClassConstraintThrowsExceptionWhenConstraintUnmatchedBC()
+    {
+        $this->mock->shouldReceive('foo')->with(Mockery::type('stdClass'));
+        $this->expectException(\Mockery\Exception::class);
+        $this->mock->foo(new \DateTime());
         Mockery::close();
     }
 
